@@ -15,16 +15,16 @@ $ lein uberjar
 
 ・同期(デフォルト)
 ```
-$ java -jar migrate-via-s3-0.1.0-standalone.jar [移行元スキーマ名].[移行元テーブル名] [移行先スキーマ名].[移行先テーブル名]
+$ java -jar ./target/aws-utils.redshift.migrate-via-s3-0.1.0-standalone.jar [移行元スキーマ名].[移行元テーブル名] [移行先スキーマ名].[移行先テーブル名]
 ```
 ・追加
 ```
-$ java -jar migrate-via-s3-0.1.0-standalone.jar [移行元スキーマ名].[移行元テーブル名] [移行先スキーマ名].[移行先テーブル名] add yes
+$ java -jar ./target/aws-utils.redshift.migrate-via-s3-0.1.0-standalone.jar [移行元スキーマ名].[移行元テーブル名] [移行先スキーマ名].[移行先テーブル名] add yes
 ```
 
 ## Examples
 
-[コマンドラインテスト](https://github.com/yujihamaguchi/migrate-via-s3/blob/master/resources/commandline_test.txt)を参照
+[コマンドラインテストのサンプル](https://github.com/yujihamaguchi/aws-utils.redshift.migrate-via-s3/blob/master/doc/commandline_test_sample.md)を参照
 
 ### License
 
