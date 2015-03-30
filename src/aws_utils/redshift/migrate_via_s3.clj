@@ -84,8 +84,9 @@
         (log/error (.getMessage e))
         (reset! exit-code 1))
       (finally
-        (doing (str "CLEAN S3 OBJECTS '" s3-working-dir "'")
-               (clear-s3-path s3-bucket-name s3-prefix))
+        (when-not (= "yes" (opts "remain-archives"))
+          (doing (str "CLEAN S3 OBJECTS '" s3-working-dir "'")
+                 (clear-s3-path s3-bucket-name s3-prefix)))
         (System/exit @exit-code)))))
 
 (defn -main [& args]
