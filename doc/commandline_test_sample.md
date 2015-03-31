@@ -94,6 +94,107 @@ trgt=# SELECT * FROM schema1.table1 ORDER BY 1;
 (0 行)
 ```
 
+```
+$ java -jar ./target/aws-utils.redshift.migrate-via-s3-0.1.0-standalone.jar schema1.table1 schema1.table1 remain-archives yes
+2015/03/31 14:22:19 [INFO] START: UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:22:20 [INFO] END  : UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:22:20 [INFO] START: TRUNCATE 'schema1.table1' (cluster: test-cluster, database: trgt)
+2015/03/31 14:22:21 [INFO] END  : TRUNCATE 'schema1.table1' (cluster: test-cluster, database: trgt)
+2015/03/31 14:22:21 [INFO] START: COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+2015/03/31 14:22:22 [INFO] END  : COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+$ echo $LASTEXITCODE
+0
+```
+
+```
+trgt=# SELECT * FROM schema1.table1 ORDER BY 1;
+ a
+---
+ x
+ y
+ z
+(3 行)
+```
+
+```
+$ aws s3 ls s3://yujihamaguchi/2015/ --recursive
+2015-03-31 08:34:03         20 2015/03/31 08:34:07/schema1.table1/0000_part_00.gz
+2015-03-31 08:34:03         20 2015/03/31 08:34:07/schema1.table1/0001_part_00.gz
+$ aws s3 rm s3://yujihamaguchi/2015/ --recursive
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0000_part_00.gz
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0001_part_00.gz
+```
+
+```
+$ java -jar ./target/aws-utils.redshift.migrate-via-s3-0.1.0-standalone.jar schema1.table1 schema1.table1 add yes remain-archives yes
+2015/03/31 14:24:16 [INFO] START: UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:24:18 [INFO] END  : UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:24:18 [INFO] START: COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+2015/03/31 14:24:19 [INFO] END  : COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+$ echo $LASTEXITCODE
+0
+```
+
+```
+trgt=# SELECT * FROM schema1.table1 ORDER BY 1;
+ a
+---
+ x
+ x
+ y
+ y
+ z
+ z
+(6 行)
+```
+
+```
+$ aws s3 ls s3://yujihamaguchi/2015/ --recursive
+2015-03-31 14:24:12         24 2015/03/31 14:24:16/schema1.table1/0000_part_00.gz
+2015-03-31 14:24:12         22 2015/03/31 14:24:16/schema1.table1/0001_part_00.gz
+$ aws s3 rm s3://yujihamaguchi/2015/ --recursive
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0000_part_00.gz
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0001_part_00.gz
+```
+
+```
+$ java -jar ./target/aws-utils.redshift.migrate-via-s3-0.1.0-standalone.jar schema1.table1 schema1.table1 remain-archives yes add yes
+2015/03/31 14:28:54 [INFO] START: UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:28:55 [INFO] END  : UNLOAD FROM 'schema1.table1' (cluster: test-cluster, database: src)
+2015/03/31 14:28:55 [INFO] START: COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+2015/03/31 14:28:56 [INFO] END  : COPY TO 'schema1.table1' (cluster: test-cluster, database: trgt)
+$ echo $LASTEXITCODE
+0
+```
+
+```
+trgt=# SELECT * FROM schema1.table1 ORDER BY 1;
+ a
+---
+ x
+ x
+ x
+ y
+ y
+ y
+ z
+ z
+ z
+(9 行)
+
+trgt=# truncate schema1.table1;
+TRUNCATE TABLE and COMMIT TRANSACTION
+```
+
+```
+$ aws s3 ls s3://yujihamaguchi/2015/ --recursive
+2015-03-31 14:24:12         24 2015/03/31 14:24:16/schema1.table1/0000_part_00.gz
+2015-03-31 14:24:12         22 2015/03/31 14:24:16/schema1.table1/0001_part_00.gz
+$ aws s3 rm s3://yujihamaguchi/2015/ --recursive
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0000_part_00.gz
+delete: s3://yujihamaguchi/2015/03/31 08:34:07/schema1.table1/0001_part_00.gz
+```
+
 # non-nominal scinario
 
 ```
