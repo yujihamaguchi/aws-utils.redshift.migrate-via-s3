@@ -29,7 +29,7 @@
 
 (defn get-local-date []
   (->> (tl/local-now)
-       (tf/unparse (tf/formatter-local "yyyy/MM/dd HH:mm:ss"))))
+       (tf/unparse (tf/formatter-local "yyyy/MM/dd/HH:mm:ss"))))
 
 (defn unload-redshift-data [src s3-working-dir credentials]
   (let [query-str (if (re-seq #"(?i)^SELECT.*FROM.*" src)
@@ -74,11 +74,11 @@
       (when-not (= "yes" (opts "add"))
         (doing (str "TRUNCATE '" trgt "' (cluster: " trgt-cluster-name ", database: " trgt-db-name ")")
                (jdbc/execute! trgt-db [(str "TRUNCATE " trgt)])))
-
-      (doing
-        (str "COPY TO '" trgt "' (cluster: " trgt-cluster-name ", database: " trgt-db-name ")") 
-        (jdbc/execute! trgt-db
-          [(str "COPY " trgt " FROM '" s3-working-dir "' CREDENTIALS '" credentials "' ESCAPE DELIMITER AS '\t' NULL AS '%NULL%' ACCEPTANYDATE IGNOREBLANKLINES GZIP")]))
+      (when-not (= "yes" (opts "unload-only"))
+        (doing
+          (str "COPY TO '" trgt "' (cluster: " trgt-cluster-name ", database: " trgt-db-name ")") 
+          (jdbc/execute! trgt-db
+            [(str "COPY " trgt " FROM '" s3-working-dir "' CREDENTIALS '" credentials "' ESCAPE DELIMITER AS '\t' NULL AS '%NULL%' ACCEPTANYDATE IGNOREBLANKLINES GZIP")])))
 
       (catch Exception e
         (log/error (.getMessage e))
