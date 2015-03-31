@@ -1,3 +1,4 @@
+/src/aws_utils/redshift/properties.clj
 /target
 /lib
 /classes

@@ -54,7 +54,7 @@
 
 (defn migrate-via-s3 [src trgt opts]
   (let [local-date (get-local-date)
-        s3-prefix (str local-date "/" trgt "/")
+        s3-prefix (str "redshift_work/SNAPSHOT/" trgt "/" local-date)
         s3-working-dir (str "s3://" s3-bucket-name "/" s3-prefix)
         aws-cred (get-aws-default-credentials)
         credentials (str "aws_access_key_id=" (aws-cred :access-key) ";aws_secret_access_key=" (aws-cred :secret-key))
