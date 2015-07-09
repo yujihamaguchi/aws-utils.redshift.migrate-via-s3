@@ -54,7 +54,7 @@
 
 (defn migrate-via-s3 [src trgt opts]
   (let [local-date (get-local-date)
-        s3-prefix (str "input-data/brain/SNAPSHOT/" trgt "/" local-date)
+        s3-prefix (str "input-original-data/brain/today/SNAPSHOT/" trgt "/" local-date)
         s3-working-dir (str "s3://" s3-bucket-name "/" s3-prefix)
         aws-cred (get-aws-default-credentials)
         credentials (str "aws_access_key_id=" (aws-cred :access-key) ";aws_secret_access_key=" (aws-cred :secret-key))
@@ -69,7 +69,8 @@
              (unload-redshift-data src s3-working-dir credentials))
 
       ; make sure the target table exists.
-      (jdbc/query trgt-db [(str "SELECT 1 FROM " trgt " LIMIT 1")])
+      (when-not (= "yes" (opts "unload-only"))
+        (jdbc/query trgt-db [(str "SELECT 1 FROM " trgt " LIMIT 1")]))
 
       (when-not (= "yes" (opts "add"))
         (doing (str "TRUNCATE '" trgt "' (cluster: " trgt-cluster-name ", database: " trgt-db-name ")")
